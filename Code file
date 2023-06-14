@@ -1,0 +1,89 @@
+#  This line imports the Counter class from the collections module. Counter is a dictionary subclass used for counting the occurrences of elements in a sequence.
+from collections import Counter
+
+#  This function takes in the string data and first puts the unique characters in a tuple and assign values in descending order using lambda function.
+
+def computeText(data):  
+    unichar = list(set(data))
+    unicharcount = dict(Counter(data))
+    unicharcount = dict(sorted(unicharcount.items(), key=lambda item: item[1], reverse=True))
+    return len(unichar), unicharcount
+
+
+'''This function takes three inputs, the string data, a list keyList, and a dictionary dataDict. It then returns a tuple containing the compressed version of the input data and a dictionary inversemap that can be used to decompress the compressed data. \
+The function first creates an empty dictionary compressedict, which will be used to store the compressed version of each character in data. It also creates an empty dictionary inversemap, which will be used to map the compressed version of each character back to the original character. The function then iterates through each key in the dataDict dictionary and assigns a compressed value to each character using the corresponding value in keyList. It also creates the inverse mapping in inversemap. Finally, the function iterates through each character in data and appends its compressed value to the output string, which is returned along with the inversemap dictionary.'''
+
+def processText(data, keyList, dataDict):
+    j = 0
+    compressedict = {}
+    inversemap = {}
+    output = ""
+    for k in dataDict:
+        compressedict[k] = [keyList[j], dataDict[k]]
+        inversemap[keyList[j]] = k
+        j += 1
+    for c in data:
+        output += compressedict[c][0]
+    return output, inversemap
+
+'''The compression function takes a text input and compresses it by assigning each unique character a hexadecimal value. The function returns the compressed output, a dictionary mapping each character to its assigned hexadecimal value, and the number of unique characters.'''
+
+def compression(text):
+    key = []
+    i = 0
+    factorial = 16
+    power = 1
+    keyLen, dDict = computeText(text)
+    #  This initiates a while loop that will continue as long as the length of the key list is less than the keyLen value.
+    while len(key) < keyLen:
+        if i <= (factorial - 2):
+            key.append(str(hex(i))[2:])
+            i += 1
+        else:
+            power += 1
+            factorial = pow(16, power)
+            i = factorial - 16
+    output, newDict = processText(text, key, dDict)
+    print("Assigned hex values for each character:")
+    for i, char in enumerate(newDict):
+        print(f"{char}: {newDict[char][0]}")
+    return output, newDict, keyLen
+
+
+def decompression(keyDict, cData):
+    output = ""
+    fNib = ""
+    for s in cData:
+        if s == 'f':
+            fNib += s
+        else:
+            fNib += s
+            output += keyDict[fNib]
+            fNib = ""
+    return output
+
+
+
+
+def main():
+    text = input("Enter the text to be compressed: ")
+    # Input validation: This is a security step implemented in order to ensure input is a string.
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+
+    # Input size limit: This is also another security measure to ensure,
+    # the required amount of characters is inputed to avoid overloading of memory devices in some instances
+
+    if len(text) > 1000:
+        raise ValueError("Input size must not exceed 1000 characters")
+    compressed_data, new_dict, key_length = compression(text)
+    print("Assigned hex values for each character:")
+    print(new_dict)
+    print("Compressed data:")
+    print(compressed_data)
+    print("Decompressed data:")
+    decompressed_data = decompression(new_dict, compressed_data)
+    print(decompressed_data)
+
+
+main()
